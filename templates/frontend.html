@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>DIAMind RAG Frontend</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #111;
+            color: #eee;
+        }
+        .centered {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: #222;
+            color: #eee;
+            border: none;
+            margin-bottom: 2rem;
+        }
+        .navbar, .footer {
+            background-color: #000 !important;
+        }
+        .form-control, .btn {
+            background-color: #222;
+            color: #eee;
+            border: 1px solid #444;
+        }
+        .form-control:focus {
+            background-color: #222;
+            color: #fff;
+        }
+        a { color: #90caf9; }
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: #000 !important;
+            color: #fff;
+            z-index: 100;
+        }
+        .visually-hidden {
+            position: absolute !important;
+            height: 1px; width: 1px; overflow: hidden;
+            clip: rect(1px, 1px, 1px, 1px); white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark footer mb-4" aria-label="Intestazione">
+        <div class="container-fluid justify-content-center">
+            <span class="navbar-brand mb-0 h1">DIAMind RAG System</span>
+        </div>
+    </nav>
+    <main class="container centered py-5" role="main">
+        <header class="mb-4 text-center">
+            <h1 class="display-4 fw-bold">DIAMind RAG System</h1>
+            <p class="lead mt-3">
+                Benvenuto nel sistema di ricerca DIAMind.<br>
+                Inserisci una query per trovare i documenti più rilevanti e ottenere una risposta generata automaticamente.
+            </p>
+        </header>
+        <form method="POST" class="text-center mb-4" aria-label="Modulo di ricerca">
+            <label for="query" class="visually-hidden">Query</label>
+            <input type="text" id="query" class="form-control mb-2" name="query" placeholder="Inserisci la query" value="{{ user_query }}" aria-required="true" autocomplete="off">
+            <button type="submit" class="btn btn-primary" aria-label="Cerca">Cerca</button>
+        </form>
+        <div id="loading" style="display:none;" class="text-center my-3" aria-live="polite">
+            <div class="spinner-border text-info" role="status" aria-label="Caricamento"></div>
+            <span class="ms-2">Sto cercando...</span>
+        </div>
+        <script>
+        document.querySelector('form').addEventListener('submit', function() {
+            document.getElementById('loading').style.display = 'block';
+        });
+        </script>
+
+        <!-- Risposta generata -->
+        {% if answer %}
+            <div class="alert alert-info mt-4" role="status">{{ answer|safe }}</div>
+        {% endif %}
+        {% if results %}
+            {% for r in results %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ r.filename }}</h5>
+                        <div>{{ r.text|safe }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Documenti recuperati -->
+        {% if results %}
+            <h4 class="mt-4 text-center">Documenti più simili:</h4>
+            {% for r in results %}
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">{{ r.filename }} <span class="badge bg-secondary">{{ "%.3f"|format(r.score) }}</span></h5>
+                        <div>{{ r.text|safe }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </main>
+    <footer class="footer text-white text-center py-3 mt-4" role="contentinfo">
+        Creato da: <a href="https://github.com/AntonioSouls" class="text-white" target="_blank">Antonio Lanza</a> &amp; 
+        <a href="https://github.com/MatVitale6" class="text-white" target="_blank">Matteo Vitale</a> &copy; 2025
+    </footer>
+</body>
+</html>
