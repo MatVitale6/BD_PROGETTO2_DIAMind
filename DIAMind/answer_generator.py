@@ -4,7 +4,7 @@ import os
 
 generator = pipeline("text2text-generation", model="google/flan-t5-base", device=-1)
 
-OPENROUTER_API_KEY = "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"  # oppure inserisci la tua chiave qui
+OPENROUTER_API_KEY = "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"
 
 def generate_answer(query, results, max_length=256, context_max_chars=1200, max_doc_chars=400, first_doc_max_chars=1200):
     # Prendi solo i primi 3 documenti
@@ -31,7 +31,7 @@ def generate_answer(query, results, max_length=256, context_max_chars=1200, max_
         "Content-Type": "application/json"
     }
     data = {
-        "model": "openrouter/auto",
+        "model": "mistralai/mistral-7b-instruct:free",
         "messages": [
             {"role": "user", "content": prompt}
         ],
@@ -45,5 +45,5 @@ def generate_answer(query, results, max_length=256, context_max_chars=1200, max_
             answer = f"Errore nella generazione della risposta. Codice: {response.status_code}\n{response.text}"
     except Exception as e:
         answer = f"Errore nella generazione della risposta: {str(e)}"
-    print("Risposta generata:", answer)
+    print("Risposta generata:", repr(answer))
     return answer

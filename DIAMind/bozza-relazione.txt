@@ -1,0 +1,113 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{graphicx}
+\geometry{margin=2.5cm}
+
+\title{Relazione tecnica: Sistema DIAMind RAG}
+\author{Matteo Vitale, Antonio Lanza}
+\date{Settembre 2025}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduzione}
+Il progetto DIAMind RAG nasce con l'obiettivo di realizzare un sistema intelligente di ricerca e generazione automatica di risposte, pensato per facilitare l'accesso a informazioni contenute in una base documentale eterogenea. Il sistema integra tecniche di \textbf{Retrieval-Augmented Generation} (RAG), combinando la ricerca semantica con la generazione di testo tramite modelli di intelligenza artificiale.
+
+La piattaforma è composta da due principali componenti: \textbf{frontend} e \textbf{backend}. Il \textbf{frontend}, sviluppato con Flask e Bootstrap, offre un'interfaccia utente moderna, accessibile e responsiva, che consente all'utente di inserire query, visualizzare i risultati della ricerca e ricevere risposte generate automaticamente. La pagina principale contiene una barra di ricerca, un pulsante per inviare la query e una sezione per visualizzare la risposta generata e i documenti più simili. I risultati sono visualizzati in card, con immagini ridimensionate automaticamente e score di similarità ben visibile. Il template Flask/Jinja riceve dal backend le variabili \texttt{answer} (risposta generata) e \texttt{results} (documenti trovati).
+
+Il \textbf{backend} rappresenta il cuore logico del sistema. Si occupa di elaborare le query dell'utente, effettuare la ricerca semantica tra i documenti, calcolare la similarità tra la query e i testi disponibili, e infine generare una risposta pertinente sfruttando modelli di linguaggio avanzati. I documenti vengono embeddizzati tramite il modello \texttt{all-MiniLM-L6-v2} di Sentence Transformers e salvati in un file \texttt{data\_embeddings.npz}. La funzione \texttt{semantic\_search} calcola la similarità tra la query e tutti i documenti usando il prodotto scalare normalizzato tra gli embeddings. I documenti più simili vengono restituiti con il loro score. I testi dei documenti vengono ripuliti da simboli matematici e LaTeX, convertiti da Markdown a HTML e i percorsi delle immagini vengono sistemati per essere serviti correttamente da Flask.
+
+L'interazione tra frontend e backend garantisce un flusso di lavoro fluido: l'utente invia una domanda tramite l'interfaccia web, il backend recupera i documenti più rilevanti, genera una risposta in linguaggio naturale e restituisce il tutto al frontend, che si occupa di visualizzare i risultati in modo chiaro e ordinato. Il sistema è inoltre pensato per essere valutato tramite metriche di retrieval, come la reciprocal rank, per monitorare e migliorare la qualità delle risposte fornite.
+
+In sintesi, DIAMind RAG rappresenta una soluzione completa e flessibile per la ricerca intelligente e la generazione automatica di risposte, integrando tecnologie di front-end moderne e algoritmi di back-end avanzati.
+
+
+\section{Generazione della risposta}
+La generazione della risposta è una delle componenti fondamentali del sistema DIAMind RAG. Dopo aver identificato i documenti più rilevanti rispetto alla query dell’utente, il backend costruisce un contesto informativo che viene utilizzato per produrre una risposta in linguaggio naturale. Questa risposta può essere generata in due modi distinti:
+
+\begin{itemize}
+    \item \textbf{Modello locale}: Utilizzando la pipeline HuggingFace Transformers con il modello \texttt{flan-t5-base}, il sistema è in grado di generare risposte direttamente sul server. Il modello riceve come input la domanda dell’utente e il contesto estratto dai documenti recuperati, producendo una risposta coerente e pertinente.
+    \item \textbf{Modello esterno via API}: Il sistema può anche sfruttare modelli di linguaggio avanzati disponibili tramite API esterne, come OpenRouter. In questo caso, viene costruito un prompt strutturato che include sia la domanda sia i documenti più rilevanti. Il prompt viene inviato tramite una richiesta HTTP POST all’API, che restituisce una risposta generata dal modello selezionato (ad esempio \texttt{mistralai/mistral-7b-instruct:free}). Questo approccio consente di sfruttare modelli più potenti senza la necessità di risorse hardware locali.
+\end{itemize}
+
+\section{Prompt e gestione dei documenti}
+La costruzione del prompt è cruciale per ottenere risposte di qualità dal modello generativo. Il sistema seleziona i primi tre documenti più simili alla query, garantendo che il primo documento venga inviato per intero (o con un limite di caratteri più elevato), mentre gli altri vengono troncati se superano una soglia di lunghezza predefinita. Questo accorgimento permette di fornire al modello un contesto ricco ma compatto, evitando di superare i limiti di lunghezza imposti dalle API.
+
+Il prompt è formulato in modo esplicito: si chiede al modello di rispondere in linguaggio naturale alla domanda dell’utente, utilizzando come fonte principale le informazioni contenute nei documenti forniti. Se la risposta non è presente nei documenti, il modello è comunque invitato a fornire una risposta basata sulle proprie conoscenze. Questo approccio garantisce che la risposta sia il più possibile pertinente e informativa, anche in caso di documenti incompleti.
+
+\section{Visualizzazione dei risultati}
+La presentazione dei risultati è progettata per essere chiara, leggibile e accessibile. La risposta generata dal modello viene visualizzata in un riquadro evidenziato tramite un alert Bootstrap, in modo da essere immediatamente riconoscibile dall’utente. I documenti recuperati sono mostrati all’interno di card, ciascuna contenente il nome del file, lo score di similarità rispetto alla query e il contenuto formattato in HTML. Le immagini presenti nei documenti vengono ridimensionate automaticamente per adattarsi al container, mantenendo il rapporto d’aspetto e garantendo una visualizzazione ottimale. Questo layout consente all’utente di consultare rapidamente sia la risposta sintetica generata dal sistema sia i documenti di riferimento, facilitando la verifica e l’approfondimento delle informazioni.
+
+\section{Valutazione e risultati}
+Per misurare la qualità del sottosistema di retrieval sono state eseguite valutazioni automatiche utilizzando una \textbf{ground truth} costruita manualmente. La ground truth è stata creata con uno script interattivo che mostra per ogni query i top‑K risultati e permette all'operatore di selezionare quale/i documento/i è/sono rilevanti; le annotazioni finali sono salvate in \texttt{DIAMind/metrics/ground\_truth\_labelled.csv} e come modulo Python \texttt{DIAMind/metrics/ground\_truth.py}.
+
+\subsection{Script di valutazione}
+La valutazione è stata eseguita con lo script \texttt{DIAMind/metrics/evaluate\_metrics.py}. Principali caratteristiche:
+\begin{itemize}
+    \item Caricamento degli embeddings salvati in \texttt{data\_embeddings.npz} tramite la funzione \texttt{load\_embeddings()}.
+    \item Per ogni query nella ground truth viene eseguita \texttt{semantic\_search(query, embeddings, filenames, texts, top\_k=K)} con \(K=50\).
+    \item Per ogni query si calcola la \textbf{reciprocal rank} (RR) definita come \(RR = 1 / rank\) dove \emph{rank} è la posizione del primo documento rilevante; se nessun documento rilevante è presente in top‑K si assegna RR=0.
+    \item Aggregazione in \textbf{Mean Reciprocal Rank} (MRR) e calcolo di \textbf{Precision@k} e \textbf{HitRate@k} per \(k=1\ldots K\).
+    \item I risultati dettagliati per query sono salvati in \texttt{metrics\_detailed.csv}; i grafici vengono salvati in \texttt{DIAMind/metrics/plots/}.
+\end{itemize}
+
+\subsection{Nota sul processo di etichettatura}
+Durante la costruzione della ground truth l'operatore ha etichettato i documenti osservando i primi 3 risultati restituiti per ciascuna query. Per questo motivo, nelle annotazioni molte voci contrassegnate come "nessuno" indicano che nessun documento rilevante si trovava nei primi tre; la valutazione è stata eseguita con \(K=50\) per verificare la presenza di documenti rilevanti oltre i primi tre risultati.
+
+\subsection{Risultati quantitativi}
+Sono state valutate 74 query etichettate. I principali risultati ottenuti sono:
+
+\begin{itemize}
+    \item Queries valutate: 74
+    \item MRR@50: 0.7275
+    \item Precision@1: 0.5135 \quad HitRate@1: 0.5135
+    \item Precision@3: 0.3333 \quad HitRate@3: 1.0000
+    \item Precision@5: 0.2000 \quad HitRate@5: 1.0000
+    \item Precision@10: 0.1000 \quad HitRate@10: 1.0000
+\end{itemize}
+
+I dettagli per query sono disponibili nel file \texttt{metrics\_detailed.csv} generato dallo script.
+
+\subsection{Grafici}
+I grafici prodotti dallo script sono inclusi qui come riferimento (file PNG salvati in \texttt{DIAMind/metrics/plots/}):
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{DIAMind/metrics/plots/precision_at_k.png}
+    \caption{Precision@k media sul set di test.}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{DIAMind/metrics/plots/hitrate_at_k.png}
+    \caption{HitRate@k (frazione di query con almeno un documento rilevante in top‑k).}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{DIAMind/metrics/plots/ranks_histogram.png}
+    \caption{Istogramma dei rank per le query in cui è stato trovato almeno un documento rilevante.}
+\end{figure}
+
+\subsection{Analisi qualitativa}
+Dall'analisi dei risultati emergono due osservazioni principali:
+\begin{itemize}
+    \item Le domande più generali o interdisciplinari tendono a generare maggiore incertezza nel sistema di retrieval: il modello di embedding può associare termini simili ma contestualmente diversi, portando a documenti affini ma non strettamente pertinenti alla domanda. Questo si riflette in rank più alti (peggiore posizione) per le query generiche.
+    \item Le domande specifiche e in ambito disciplinare (ad esempio domande chiaramente riferite a concetti di database, sistemi operativi o automi) mostrano maggiore precisione: i documenti rilevanti risultano più frequentemente nelle posizioni top‑3, con conseguente miglioramento di Precision@k e RR per quelle query.
+\end{itemize}
+
+\subsection{Limitazioni e considerazioni}
+\begin{itemize}
+    \item La ground truth è stata costruita tramite etichettatura manuale limitata ai top‑3 risultati: questo può introdurre bias nelle annotazioni. Per una valutazione più robusta sarebbe opportuno etichettare su un pool più ampio di risultati o usare più annotatori.
+    \item La scelta di \(K=50\) per l'evaluation compensa parzialmente la limitazione precedente, ma non elimina il bias dell'etichettatura iniziale.
+    \item Le metriche quantitative devono essere integrate con analisi qualitative e test su dataset esterni per una valutazione completa.
+\end{itemize}
+\section{Conclusioni}
+Il sistema DIAMind RAG integra ricerca semantica, generazione automatica di risposte e una UI moderna, sfruttando sia modelli locali che esterni. La modularità del backend permette di estendere facilmente il sistema con nuove metriche e modelli.
+
+\end{document}

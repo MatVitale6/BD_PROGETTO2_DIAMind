@@ -1,0 +1,100 @@
+Cos'è una macchina di Turing e a cosa serve?
+Qual è la differenza tra determinismo e nondeterminismo in automi?
+Cosa si intende per complessità temporale di un algoritmo?
+Quali sono le principali strutture dati e quando usarle?
+Come funziona l'algoritmo QuickSort e qual è la sua complessità media?
+Che cos'è la programmazione dinamica e in quali problemi è utile?
+Qual è la differenza tra memoizzazione e tabulazione?
+Come si misura la complessità spaziale di un algoritmo?
+Cosa sono i grafi orientati e non orientati?
+Come si esegue una ricerca in ampiezza (BFS) e a cosa serve?
+Come funziona l'algoritmo di Dijkstra per i percorsi minimi?
+Qual è la differenza tra ricerca binaria iterativa e ricorsiva?
+Cosa sono alberi bilanciati e perché sono importanti?
+Come funziona una tabella hash e quali sono le collisioni?
+Che cos'è la coerenza della cache in architettura multiprocessore?
+Quali sono i principali livelli della memoria di un computer?
+Come funziona la memoria virtuale e il paging?
+Cosa sono processi e thread e quali sono le differenze?
+Come funziona la schedulazione dei processi in un sistema operativo?
+Quali sono le principali politiche di scheduling (FCFS, SJF, Round Robin)?
+Cosa si intende per deadlock e come si può prevenire?
+Come funziona la gestione della memoria in un sistema operativo?
+Qual è il ruolo del kernel in un sistema operativo moderno?
+Cosa sono i semafori e come si usano per la sincronizzazione?
+Quali sono le principali tecniche per la gestione dei file system?
+Cos'è una transazione in un database e quali sono le proprietà ACID?
+Come funziona il controllo della concorrenza nei DBMS?
+Qual è la differenza tra database relazionali e NoSQL?
+Come funziona l'indicizzazione in un database relazionale?
+Cosa è una join e quali tipi di join esistono?
+Come si effettua il recupero di informazioni in un motore di ricerca?
+Che cos'è l'embedding di testo e a cosa serve nella ricerca semantica?
+Come si calcola la similarità tra vettori di embedding?
+Qual è la differenza tra retrieval basato su keyword e retrieval semantico?
+Cosa significa RAG (Retrieval-Augmented Generation)?
+Come si costruisce un prompt efficace per un modello di linguaggio?
+Quali sono le limitazioni dei modelli di linguaggio autoregressivi?
+Quando conviene usare un modello locale rispetto a un servizio cloud?
+Come funzionano le API per modelli di linguaggio esterni?
+Cosa sono le metriche di valutazione retrieval come MRR e precision@k?
+Come si costruisce una ground truth per la valutazione di retrieval?
+Quali sono i principali algoritmi di compressione dei dati?
+Cosa si intende per crittografia simmetrica e asimmetrica?
+Come funziona il protocollo TLS per le comunicazioni sicure?
+Qual è la differenza tra autenticazione e autorizzazione?
+Che cosa sono certificati digitali e PKI?
+Come funziona il routing in una rete TCP/IP?
+Cosa sono subnetting e CIDR?
+Qual è la differenza tra TCP e UDP e quando usare ciascuno?
+Come funziona il meccanismo di handshaking TCP?
+Cosa sono i firewall e come proteggono una rete?
+Quali sono i principali modelli di consistenza nei sistemi distribuiti?
+Cosa si intende per consenso distribuito (es. Paxos, Raft)?
+Come funzionano le repliche di dati in un sistema distribuito?
+Qual è la differenza tra elaborazione batch e stream processing?
+Che cos'è un sistema di messaggistica (es. Kafka) e a cosa serve?
+Cosa sono microservizi e quali vantaggi/svantaggi portano?
+Come funziona la containerizzazione (Docker) e perché usarla?
+Che ruolo svolge l'orchestrazione (Kubernetes) nelle applicazioni moderne?
+Cosa significa scalabilità verticale e orizzontale?
+Come si progetta l'alta disponibilità in un servizio web?
+Quali sono le pratiche di CI/CD e perché sono importanti?
+Cosa è il testing unitario e come differisce dal testing di integrazione?
+Quali sono le metriche principali per misurare la qualità del software?
+Come si effettua il debug di un'applicazione distribuita?
+Cosa sono i design pattern e a cosa servono nello sviluppo software?
+Come funziona un compilatore (lexing, parsing, ottimizzazione, codegen)?
+Qual è la differenza tra interpretazione e compilazione?
+Cosa sono linguaggi formali e grammatiche regolari?
+Come si rappresentano le automazioni con espressioni regolari?
+Cosa sono le macchine di Turing multi-nastro e come vengono simulate?
+Quali sono i concetti fondamentali dell'architettura dei calcolatori?
+Come funziona una pipeline di processore?
+Cosa sono SIMD e MIMD e dove si usano?
+Come si programma per GPU (es. CUDA, OpenCL) e quali sono i casi d'uso?
+Cosa sono sistemi real-time e quali vincoli impongono?
+Come si progettano sistemi embedded con risorse limitate?
+Quali sono le basi dell'intelligenza artificiale simbolica e dell'apprendimento automatico?
+Come funziona un modello di regressione lineare e quando usarlo?
+Cosa sono reti neurali profonde e in cosa differiscono dalle reti shallow?
+Qual è il ruolo della normalizzazione e del preprocessing nei dati?
+Come si valuta un modello di machine learning (accuracy, precision, recall, F1)?
+Quali sono le tecniche per prevenire l'overfitting?
+Cosa è il reinforcement learning e quali sono i suoi elementi base?
+Come funziona il Natural Language Processing a livello generale?
+Quali sono le tecniche di word embedding classiche (word2vec, GloVe)?
+Cosa sono sistemi di raccomandazione e quali approcci esistono?
+Quali sono i principi fondamentali del controllo delle versioni (Git)?
+Come si progetta un'API RESTful e quali convenzioni seguire?
+Cosa significa idempotenza in un'API e perché è utile?
+Qual è la differenza tra SOAP e REST?
+Cosa sono blockchain e smart contract a livello concettuale?
+Quali sono i principali rischi di sicurezza nello sviluppo web (OWASP Top 10)?
+Come si esegue il penetration testing di base su un'applicazione web?
+Cosa sono tecniche di data provenance e perché sono importanti?
+Come si progetta un sistema di logging centralizzato e perché serve?
+Cosa si intende per observability e quali metriche monitorare?
+Come funzionano i sistemi di storage distribuito (es. HDFS)?
+Qual è la differenza tra storage a blocchi, file e oggetti?
+Come si progetta la persistenza di grandi volumi di dati

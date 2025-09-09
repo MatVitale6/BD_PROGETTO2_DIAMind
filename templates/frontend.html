@@ -11,7 +11,7 @@
             color: #eee;
         }
         .centered {
-            max-width: 800px;
+            max-width: 1100px; /* aumenta la larghezza */
             margin: 0 auto;
         }
         .card {
@@ -47,6 +47,14 @@
             height: 1px; width: 1px; overflow: hidden;
             clip: rect(1px, 1px, 1px, 1px); white-space: nowrap;
         }
+        .card-body img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0.5rem auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -81,6 +89,8 @@
         <!-- Risposta generata -->
         {% if answer %}
             <div class="alert alert-info mt-4" role="status">{{ answer|safe }}</div>
+        {% else %}
+            <div class="alert alert-warning mt-4" role="status">Nessuna risposta generata dal modello.</div>
         {% endif %}
         {% if results %}
             {% for r in results %}
@@ -99,7 +109,7 @@
             {% for r in results %}
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title text-center">{{ r.filename }} <span class="badge bg-secondary">{{ "%.3f"|format(r.score) }}</span></h5>
+                        <h5 class="card-title text-center">{{ r.filename }} <span class="badge bg-secondary ms-2">Score: {{ "%.3f"|format(r.score) }}</span></h5>
                         <div>{{ r.text|safe }}</div>
                     </div>
                 </div>
