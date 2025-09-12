@@ -1,3 +1,4 @@
 Data
 venv/
 DIAMind/__pycache__DIAMind/data_embeddings.npz
+DIAMind/data_embeddings.npz
