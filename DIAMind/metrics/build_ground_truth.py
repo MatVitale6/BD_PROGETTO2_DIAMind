@@ -12,6 +12,41 @@ from DIAMind.search import load_embeddings, semantic_search
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Data", "Cleaned")
 EMBED_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data_embeddings.npz")
+GT_CSV = os.path.join(os.path.dirname(__file__), "ground_truth_labelled.csv")
+GT_PY = os.path.join(os.path.dirname(__file__), "ground_truth.py")
+
+def load_existing_ground_truth():
+    """Carica ground truth da ground_truth.py e/o CSV (unisce, py ha priorità)."""
+    gt = {}
+    # carica da py se esiste
+    if os.path.exists(GT_PY):
+        try:
+            ns = {}
+            with open(GT_PY, "r", encoding="utf-8") as f:
+                exec(f.read(), ns)
+            if "ground_truth" in ns and isinstance(ns["ground_truth"], dict):
+                gt.update(ns["ground_truth"])
+        except Exception:
+            pass
+    # carica da csv e integra (ma non sovrascrive voci già presenti)
+    if os.path.exists(GT_CSV):
+        try:
+            with open(GT_CSV, newline="", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    q = row.get("query", "").strip()
+                    corr = row.get("correct", "").strip()
+                    if not q:
+                        continue
+                    if q in gt:
+                        continue
+                    if ";" in corr:
+                        gt[q] = [s.strip() for s in corr.split(";") if s.strip()]
+                    else:
+                        gt[q] = corr
+        except Exception:
+            pass
+    return gt
 
 def prompt_select(results, snippet_len=300):
     """
@@ -49,39 +84,94 @@ def prompt_select(results, snippet_len=300):
     return chosen
 
 def build_from_queries(queries, top_k=10, out_csv="ground_truth_labelled.csv"):
+    # carica embeddings
     embeddings, filenames, texts = load_embeddings(EMBED_PATH)
+    # carica ground truth esistente
+    existing_gt = load_existing_ground_truth()
     rows = []
-    gt = {}
+    new_entries = {}
+
     for q in queries:
         print("\n" + "="*80)
         print("Query:", q)
+        # se già presente chiedi se sovrascrivere
+        if q in existing_gt:
+            print("Esiste già una voce per questa query nella ground truth.")
+            print("Valore attuale:", existing_gt[q])
+            choice = input("Vuoi (s)altare, (v)isualizzare risultati per riesaminare, (r)iscrivere/sovrascrivere? [s/v/r]: ").strip().lower() or "s"
+            if choice == "s":
+                # mantieni esistente
+                val = existing_gt[q]
+                if isinstance(val, list):
+                    rows.append({"query": q, "correct": ";".join(val)})
+                else:
+                    rows.append({"query": q, "correct": val})
+                continue
+            elif choice == "v":
+                # prosegui ed elabora come nuova etichettatura ma mostra prima i risultati
+                pass
+            elif choice == "r":
+                # procederà a rideterminare la voce
+                pass
+
         results = semantic_search(q, embeddings, filenames, texts, top_k=top_k)
         selected = prompt_select(results)
         if selected:
             gt_val = selected if len(selected) > 1 else selected[0]
-            gt[q] = gt_val
+            new_entries[q] = gt_val
             rows.append({"query": q, "correct": ";".join(selected)})
         else:
+            # salva come vuoto (se non presente prima)
             rows.append({"query": q, "correct": ""})
-        # optional quick save after each step
+
+        # salva CSV parziale ogni iterazione per non perdere lavoro
         with open(out_csv, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=["query", "correct"])
             writer.writeheader()
-            writer.writerows(rows)
-    # write ground_truth.py
-    gt_path = os.path.join(os.path.dirname(__file__), "ground_truth.py")
-    with open(gt_path, "w", encoding="utf-8") as f:
+            # unisci existing + new_entries + current rows (ordine: existing keys first)
+            merged = dict(existing_gt)
+            merged.update(new_entries)
+            # aggiorna con rows per garantire ordine di inserimento
+            for r in rows:
+                merged[r["query"]] = [] if r["correct"] == "" else ([s.strip() for s in r["correct"].split(";")] if ";" in r["correct"] else r["correct"])
+            for k, v in merged.items():
+                if isinstance(v, list):
+                    corr = ";".join(v)
+                else:
+                    corr = v
+                writer.writerow({"query": k, "correct": corr})
+
+    # final merge: existing_gt <- new_entries
+    merged_gt = dict(existing_gt)
+    merged_gt.update(new_entries)
+
+    # scrivi ground_truth.py aggiornato
+    with open(GT_PY, "w", encoding="utf-8") as f:
         f.write("# Auto-generated ground_truth mapping\n")
         f.write("ground_truth = {\n")
-        for k, v in gt.items():
+        for k in sorted(merged_gt.keys()):
+            v = merged_gt[k]
             if isinstance(v, list):
                 vals = ", ".join(repr(x) for x in v)
                 f.write(f"    {repr(k)}: [{vals}],\n")
             else:
                 f.write(f"    {repr(k)}: {repr(v)},\n")
         f.write("}\n")
+
+    # scrivi CSV finale (ordinato)
+    with open(out_csv, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["query", "correct"])
+        writer.writeheader()
+        for k in sorted(merged_gt.keys()):
+            v = merged_gt[k]
+            if isinstance(v, list):
+                corr = ";".join(v)
+            else:
+                corr = v
+            writer.writerow({"query": k, "correct": corr})
+
     print(f"\nSalvato CSV: {out_csv}")
-    print(f"Salvato ground truth Python: {gt_path}")
+    print(f"Salvato ground truth Python: {GT_PY}")
 
 def load_queries_from_file(path):
     qs = []
@@ -93,7 +183,7 @@ def load_queries_from_file(path):
     return qs
 
 def main():
-    print("BUILD GROUND TRUTH INTERATTIVO")
+    print("BUILD GROUND TRUTH INTERATTIVO (AGGIUNTA SENZA PERDERE ESISTENTI)")
     mode = input("Modalità: (1) inserire queries manualmente, (2) caricare file di queries (una per riga) [1/2]: ").strip() or "1"
     if mode == "2":
         path = input("Percorso file queries: ").strip()
