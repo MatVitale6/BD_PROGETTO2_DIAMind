@@ -1,4 +1,4 @@
-
-venv/
-DIAMind/__pycache__DIAMind/data_embeddings.npz
+DIAMind/__pycache__/
+DIAMind/metrics/__pycache__/
 DIAMind/data_embeddings.npz
+venv/
