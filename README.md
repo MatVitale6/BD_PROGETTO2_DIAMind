@@ -7,7 +7,17 @@ A **RAG** (*Retrieval-Augmented Generation*) **system** is an artificial intelli
 Our RAG system has been designed to collect, organise and make available all teaching materials – notes, handouts, exam questions, codes and documentation – relating to courses at the Department of Computer Engineering and Automation at Roma Tre University, for both bachelor's and master's degrees. Through the integration of semantic retrieval techniques and advanced linguistic models, the system is able to answer questions in natural language posed by students, offering intelligent support for studying, exam preparation and searching for specific content in course programmes. The goal is to create a reliable, up-to-date virtual assistant that is perfectly aligned with the educational path offered by the University.
 
 ## How to Install and Use
-...
+To use and test the project, simply download it locally from the repository and follow the steps below:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python frontend.py
+```
+
+Once the script is running, open your browser and go to http://localhost:5000
+This will allow you to view the web interface and interact with the system locally, even if it is not currently online.
 
 ## 📜 Authors & License
 <a href="https://github.com/AntonioSouls">
@@ -21,13 +31,3 @@ This project is publicly accessible and can be freely viewed, but **all rights a
 Copying, modifying, distributing, or reusing the code is **not permitted without written permission**.
 
 © 2025 Antonio Lanza, Matteo Vitale. All Rights Reserved.
-
-
-
-
-## Comandi utili per lavorare (Sezione temporanea. Ci serve solo per permettere a me e Matteo di lavorare in maniera pulita)
-- **source venv/bin/activate** -> Attivare l'ambiente virtuale in locale\
-- **deactivate** -> Disattivare l'ambiente virtuale in locale\
-- **pip freeze > requirements.txt**  -> Per aggiornare il requirements.txt ogni volta che in locale installiamo nuove librerie\
-- **pip install -r requirements.txt** -> Per installare tutte le librerie aggiunte dal collega nel suo ambiente virtuale, in modo che i due ambienti siano sempre allineati\
-- **pip list** -> Eseguito dentro al venv permette di vedere sul terminale tutte le librerie installate in quell'ambiente virtuale. Se eseguito fuori dal venv, ti permette di visualizzare le librerie installate sul tuo sistema
